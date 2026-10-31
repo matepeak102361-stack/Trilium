@@ -20,6 +20,7 @@ import MapContextMenu from "./MapContextMenu";
 import MapToolbar, { DirectionToolbar } from "./MapToolbar";
 import { renderMemoMarkers } from "./NodeMemo";
 import NodePanel from "./NodePanel";
+import { installQuickEditing } from "./quick_edit";
 
 /**
  * Recursively sanitizes a parsed Mind Elixir data structure in place, neutralizing any
@@ -287,6 +288,14 @@ export function MindElixir({ children, containerRef: externalContainerRef, conta
             bus.removeListener("changeDirection", onChange);
         };
     }, [ onChange ]);
+
+    // Type-to-edit, Tab to add a child while editing, and removal of new nodes left empty.
+    useEffect(() => {
+        const mind = apiRef.current;
+        const host = containerRef.current;
+        if (!mind || !host) return;
+        return installQuickEditing(mind, host, t("mind-map.new-node"));
+    }, [ instanceVersion ]);
 
     // Node icons are rendered as text by Mind Elixir, while ours are icon classes, so they are
     // dressed again after every layout — which is what follows any change to a node. The links a

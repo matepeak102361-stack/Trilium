@@ -10,8 +10,10 @@ The mindmap allows for easy jotting down of ideas and storing them in a hierarch
 
 ## Interaction
 
+*   To change the text of a node, select it and start typing; the typed text replaces the existing one. Input methods (such as Pinyin) work the same way. Alternatively, press <kbd>F2</kbd> or double-click the node to edit the existing text.
 *   To create a new node at the same level as the current one, press <kbd>Enter</kbd>, enter the desired text and then press <kbd>Enter</kbd> once again to confirm.
-*   Similarly, to create a sub-node, press <kbd>Tab</kbd>, enter the desired text and then press <kbd>Enter</kbd>.
+*   Similarly, to create a sub-node, press <kbd>Tab</kbd>, enter the desired text and then press <kbd>Enter</kbd>. Pressing <kbd>Tab</kbd> instead of <kbd>Enter</kbd> confirms the text and creates a sub-node of it right away, which allows writing a whole branch without leaving the keyboard.
+*   A newly created node that is left empty (by pressing <kbd>Escape</kbd>, <kbd>Enter</kbd> or clicking elsewhere) is removed again.
 *   To create a parent, use <kbd>Ctrl</kbd>+<kbd>Enter</kbd> instead.
 *   To remove a node, press <kbd>Delete</kbd>.
 *   To move a node up or down, press <kbd>Page Up</kbd> or <kbd>Page Down</kbd>.
