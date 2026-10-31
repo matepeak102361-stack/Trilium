@@ -1,0 +1,58 @@
+name: Build personal macOS app
+# Builds an unsigned Apple Silicon build of this fork and publishes it as a prerelease, so the
+# modified desktop app can be installed without a local toolchain.
+on:
+  push:
+    branches:
+      - mindmap-v0.106.0
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: ${{ github.repository != 'TriliumNext/Trilium' }}
+    runs-on: macos-latest
+    env:
+      TRILIUM_ARTIFACT_NAME_HINT: TriliumNotes-mindmap-macos-arm64
+      TARGET_ARCH: arm64
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Update build info
+        run: pnpm run chore:update-build-info
+      - name: Package the app
+        run: pnpm run --filter desktop electron-forge:make --arch=arm64 --platform=darwin --targets=@electron-forge/maker-zip
+      # Apple Silicon refuses to start a binary without a valid signature, and flipping the
+      # Electron fuses invalidates the one the prebuilt binary carries. An ad-hoc signature
+      # is enough to run a locally built app.
+      - name: Sign ad hoc and archive
+        run: |
+          app=$(find apps/desktop -maxdepth 5 -name "*.app" -not -path "*/node_modules/*" -print -quit)
+          echo "App bundle: $app"
+          codesign --force --deep --sign - "$app"
+          codesign --verify --deep --strict "$app"
+          mkdir -p dist-personal
+          ditto -c -k --keepParent "$app" dist-personal/TriliumNotes-mindmap-macos-arm64.zip
+      - name: Publish prerelease
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        with:
+          tag_name: mindmap-build
+          name: Trilium 0.106.0 + mind map changes (macOS Apple Silicon)
+          target_commitish: ${{ github.sha }}
+          prerelease: true
+          make_latest: false
+          fail_on_unmatched_files: true
+          files: dist-personal/*.zip
